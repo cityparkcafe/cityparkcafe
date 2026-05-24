@@ -402,11 +402,20 @@ function closeMenu() {
   document.body.style.overflow = '';
 }
 
-wrapper.addEventListener('scroll', function() {
-  var idx = Math.round(wrapper.scrollLeft / window.innerWidth);
-  tabs[0].classList.toggle('active', idx === 0);
-  tabs[1].classList.toggle('active', idx === 1);
-}, {passive: true});
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+      var idx = entry.target.dataset.idx | 0;
+      tabs[0].classList.toggle('active', idx === 0);
+      tabs[1].classList.toggle('active', idx === 1);
+    }
+  });
+}, { root: wrapper, threshold: 0.5 });
+
+document.querySelectorAll('.swipe-slide').forEach(function(slide, i) {
+  slide.dataset.idx = i;
+  observer.observe(slide);
+});
 
 modal.addEventListener('click', function(e) { if (e.target === modal) closeMenu(); });
 </script>
