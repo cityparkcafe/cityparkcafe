@@ -44,19 +44,24 @@
     position: relative;
     overflow-x: hidden;
   }
-  body::before {
-    content: '';
+  .bg-img {
     position: fixed;
     inset: 0;
-    background: radial-gradient(ellipse at 20% 20%, rgba(74,124,89,0.08) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 80%, rgba(26,58,42,0.06) 0%, transparent 60%);
-    pointer-events: none;
+    background-image: url('https://i.ibb.co/5WhbLWN1/FB-IMG-1779610384065.jpg');
+    background-size: cover;
+    background-position: center;
     z-index: 0;
+  }
+  .bg-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(245,240,232,0.82);
+    z-index: 1;
   }
   .container {
     width: 100%; max-width: 440px;
     display: flex; flex-direction: column; align-items: center;
-    position: relative; z-index: 1;
+    position: relative; z-index: 2;
   }
   .logo-wrap {
     width: 150px; height: 150px; border-radius: 50%; overflow: hidden;
@@ -147,7 +152,7 @@
   /* ===== MODAL ===== */
   .modal-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.92); z-index: 200;
+    background: rgba(0,0,0,0.92); z-index: 300;
     flex-direction: column; align-items: center;
   }
   .modal-overlay.active { display: flex; }
@@ -226,6 +231,9 @@
 </style>
 </head>
 <body>
+
+<div class="bg-img"></div>
+<div class="bg-overlay"></div>
 
 <!-- Leaves -->
 <div id="leavesContainer"></div>
