@@ -102,6 +102,19 @@
   .btn-menu .btn-arrow { color: var(--green-dark); }
   .link-btn:hover .btn-arrow { transform: translateX(-4px); }
 
+  /* Sound toggle button */
+  .sound-btn {
+    position: fixed; bottom: 20px; left: 20px; z-index: 300;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--green-dark); border: 2px solid var(--gold);
+    color: white; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+  }
+  .sound-btn:hover { transform: scale(1.1); }
+  .sound-btn.muted { background: #555; border-color: #888; }
+
   /* ===== MODAL ===== */
   .modal-overlay {
     display: none; position: fixed; inset: 0;
@@ -136,11 +149,9 @@
   .book-wrapper {
     flex: 1; width: 100%; display: flex;
     align-items: center; justify-content: center;
-    overflow: hidden;
-    padding: 10px 20px;
+    overflow: hidden; padding: 10px 20px;
   }
 
-  /* The 3D scene */
   .book-scene {
     position: relative;
     width: 100%;
@@ -149,7 +160,6 @@
     perspective-origin: center center;
   }
 
-  /* Static back page (page 2) always visible beneath */
   .back-page {
     width: 100%;
     border-radius: 12px;
@@ -161,19 +171,17 @@
   }
   .back-page img { width: 100%; display: block; pointer-events: none; }
 
-  /* The flipping page sits absolutely on top */
   .flip-page {
     position: absolute;
     top: 0; left: 0; right: 0;
     border-radius: 12px;
     overflow: hidden;
-    transform-origin: left center; /* flip from LEFT edge (RTL: page turns left) */
+    transform-origin: left center;
     transform-style: preserve-3d;
     box-shadow: 6px 0 30px rgba(0,0,0,0.5);
     cursor: grab;
     user-select: none;
     will-change: transform;
-    transition: box-shadow 0.2s;
     -webkit-user-drag: none;
   }
   .flip-page.animating {
@@ -182,20 +190,20 @@
   }
   .flip-page:active { cursor: grabbing; }
 
-  /* Front face */
   .flip-front {
     width: 100%;
     display: block;
     pointer-events: none;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
   .flip-front img { width: 100%; display: block; }
 
-  /* Back face (reverse of page 1 — shows when flipped) */
   .flip-back {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     transform: rotateY(180deg);
     background: #1a3a2a;
     border-radius: 12px;
@@ -206,7 +214,6 @@
     font-size: 22px; text-align: center; opacity: 0.5;
   }
 
-  /* Live shadow under flip page while dragging */
   .flip-page.dragging {
     box-shadow: 12px 0 50px rgba(0,0,0,0.7);
   }
@@ -229,6 +236,9 @@
 <body>
 
 <div id="leavesContainer"></div>
+
+<!-- Sound toggle button -->
+<button class="sound-btn" id="soundBtn" onclick="toggleSound()" title="تشغيل/إيقاف الموسيقى">🔇</button>
 
 <div class="container">
   <div class="logo-wrap">
@@ -295,12 +305,9 @@
 
   <div class="book-wrapper">
     <div class="book-scene" id="bookScene">
-      <!-- Back page (page 2) — always underneath -->
       <div class="back-page">
         <img src="https://i.ibb.co/p6xbk4Qf/Picsart-26-05-24-02-50-15-205.png" alt="المينيو صفحة ٢" draggable="false"/>
       </div>
-
-      <!-- Flip page (page 1) — draggable on top -->
       <div class="flip-page" id="flipPage">
         <div class="flip-front">
           <img src="https://i.ibb.co/hRw0DRLm/Picsart-26-05-24-02-22-09-291.jpg" alt="المينيو صفحة ١" draggable="false"/>
@@ -317,77 +324,72 @@
 
 <script>
 /* ============================================================
-   AUDIO ENGINE
+   AUDIO — زر تشغيل يدوي، مش auto-play
+   الصوت بيتوقف نهائياً لما المستخدم يمسح التطبيق
    ============================================================ */
+
 let audioCtx = null;
 let musicNodes = null;
-let musicPlaying = false;
+let musicOn = false;
+const soundBtn = document.getElementById('soundBtn');
 
-function getAudioCtx() {
-  if (!audioCtx) {
+function getOrCreateCtx() {
+  if (!audioCtx || audioCtx.state === 'closed') {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
   return audioCtx;
 }
 
-/* --- Page flip sound (realistic paper crinkle) --- */
-function playPageFlip() {
-  const ctx = getAudioCtx();
-  if (ctx.state === 'suspended') ctx.resume();
-
-  const duration = 0.45;
-  const sr = ctx.sampleRate;
-  const bufferSize = sr * duration;
-  const buffer = ctx.createBuffer(1, bufferSize, sr);
-  const data = buffer.getChannelData(0);
-
-  for (let i = 0; i < bufferSize; i++) {
-    const t = i / sr;
-    // Layered: initial hit, whoosh sweep, paper crinkle tail
-    const hit      = Math.exp(-t * 80) * (Math.random() * 2 - 1) * 1.2;
-    const sweep    = Math.exp(-t * 6) * Math.sin(2 * Math.PI * (350 - 280 * t) * t) * 0.5;
-    const crinkle  = Math.exp(-t * 18) * (Math.random() * 2 - 1) * 0.6;
-    const rustle   = Math.exp(-t * 9) * Math.sin(2 * Math.PI * (1200 + 300 * Math.sin(t * 40)) * t) * 0.2;
-    data[i] = (hit + sweep + crinkle + rustle) * 0.55;
+function toggleSound() {
+  if (musicOn) {
+    stopMusic();
+  } else {
+    startMusic();
   }
-
-  const source = ctx.createBufferSource();
-  source.buffer = buffer;
-
-  // Bandpass to make it "papery"
-  const bpf = ctx.createBiquadFilter();
-  bpf.type = 'bandpass';
-  bpf.frequency.value = 900;
-  bpf.Q.value = 0.7;
-
-  // Soft high shelf for brightness
-  const hpf = ctx.createBiquadFilter();
-  hpf.type = 'highshelf';
-  hpf.frequency.value = 3000;
-  hpf.gain.value = 4;
-
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.7, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-
-  source.connect(bpf);
-  bpf.connect(hpf);
-  hpf.connect(gain);
-  gain.connect(ctx.destination);
-  source.start();
 }
 
-/* --- Background café music --- */
-function createCafeMusic() {
-  const ctx = getAudioCtx();
+function startMusic() {
+  if (musicOn) return;
+  const ctx = getOrCreateCtx();
+  const resume = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve();
+  resume.then(() => {
+    musicNodes = buildCafeMusic(ctx);
+    musicOn = true;
+    soundBtn.textContent = '🔊';
+    soundBtn.classList.remove('muted');
+  });
+}
 
+function stopMusic() {
+  if (!musicOn || !musicNodes) return;
+  try {
+    clearInterval(musicNodes.chordTimer);
+    clearInterval(musicNodes.bassTimer);
+    clearInterval(musicNodes.hatTimer);
+    const ctx = audioCtx;
+    if (ctx && ctx.state !== 'closed') {
+      musicNodes.masterGain.gain.cancelScheduledValues(ctx.currentTime);
+      musicNodes.masterGain.gain.setValueAtTime(musicNodes.masterGain.gain.value, ctx.currentTime);
+      musicNodes.masterGain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
+      // Close context completely after fade — frees ALL resources
+      setTimeout(() => {
+        try { ctx.close(); } catch(e) {}
+        audioCtx = null;
+      }, 500);
+    }
+  } catch(e) {}
+  musicOn = false;
+  musicNodes = null;
+  soundBtn.textContent = '🔇';
+  soundBtn.classList.add('muted');
+}
+
+function buildCafeMusic(ctx) {
   const masterGain = ctx.createGain();
   masterGain.gain.value = 0;
   masterGain.connect(ctx.destination);
-  // Fade in
   masterGain.gain.linearRampToValueAtTime(0.11, ctx.currentTime + 2);
 
-  // Warm reverb via feedback delay
   const delay = ctx.createDelay(0.6);
   delay.delayTime.value = 0.35;
   const delayGain = ctx.createGain();
@@ -396,7 +398,6 @@ function createCafeMusic() {
   delayGain.connect(delay);
   delayGain.connect(masterGain);
 
-  // Low-pass on delay for warmth
   const delayLPF = ctx.createBiquadFilter();
   delayLPF.type = 'lowpass';
   delayLPF.frequency.value = 2200;
@@ -404,150 +405,173 @@ function createCafeMusic() {
   delayLPF.connect(masterGain);
 
   function playNote(freq, dur, vol, type, when) {
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc.type = type || 'sine';
-    osc.frequency.value = freq;
-    g.gain.setValueAtTime(0, when);
-    g.gain.linearRampToValueAtTime(vol, when + 0.06);
-    g.gain.setValueAtTime(vol * 0.7, when + dur * 0.5);
-    g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
-    osc.connect(g);
-    g.connect(delay);
-    g.connect(masterGain);
-    osc.start(when);
-    osc.stop(when + dur + 0.15);
-    return osc;
+    try {
+      if (!ctx || ctx.state === 'closed') return;
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(0, when);
+      g.gain.linearRampToValueAtTime(vol, when + 0.06);
+      g.gain.setValueAtTime(vol * 0.7, when + dur * 0.5);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+      osc.connect(g);
+      g.connect(delay);
+      g.connect(masterGain);
+      osc.start(when);
+      osc.stop(when + dur + 0.15);
+    } catch(e) {}
   }
 
-  // Jazz chord progressions (Am9, Fmaj7, Cmaj7, G7)
   const progressions = [
-    // Am9: A C E G B
     [220.00, 261.63, 329.63, 392.00, 493.88],
-    // Fmaj7: F A C E
     [174.61, 220.00, 261.63, 329.63, 392.00],
-    // Cmaj7: C E G B
     [261.63, 329.63, 392.00, 493.88, 587.33],
-    // G7: G B D F
     [196.00, 246.94, 293.66, 349.23, 440.00],
   ];
-
   const bassLines = [
-    [55.00, 65.41, 73.42, 82.41],   // Am
-    [43.65, 55.00, 65.41, 73.42],   // F
-    [65.41, 73.42, 82.41, 98.00],   // C
-    [49.00, 61.74, 73.42, 82.41],   // G
+    [55.00, 65.41, 73.42, 82.41],
+    [43.65, 55.00, 65.41, 73.42],
+    [65.41, 73.42, 82.41, 98.00],
+    [49.00, 61.74, 73.42, 82.41],
   ];
 
-  let chordIdx = 0;
-  let bassIdx  = 0;
-  let beatCount = 0;
+  let chordIdx = 0, beatCount = 0, beat16 = 0;
 
   function scheduleChord() {
+    if (!ctx || ctx.state === 'closed') return;
     const now = ctx.currentTime;
     const chord = progressions[chordIdx % progressions.length];
-    // Arpeggiate softly
     chord.forEach((f, i) => {
       const oct = i < 2 ? 1 : (i < 4 ? 2 : 4);
       playNote(f * oct, 2.2, 0.022 + i * 0.003, 'sine', now + i * 0.06);
     });
-    // Melody on top
     const mel = chord[2] * 4;
     playNote(mel, 1.4, 0.018, 'triangle', now + 0.15);
-    if (Math.random() > 0.5) {
-      playNote(chord[3] * 4, 0.9, 0.012, 'triangle', now + 0.8);
-    }
+    if (Math.random() > 0.5) playNote(chord[3] * 4, 0.9, 0.012, 'triangle', now + 0.8);
     chordIdx++;
   }
 
   function scheduleBass() {
+    if (!ctx || ctx.state === 'closed') return;
     const now = ctx.currentTime;
     const prog = bassLines[Math.floor(beatCount / 4) % bassLines.length];
     const note = prog[beatCount % prog.length];
-    // Upright bass: fundamental + gentle 2nd harmonic
     playNote(note, 0.5, 0.065, 'triangle', now);
     playNote(note * 2, 0.3, 0.015, 'sine', now);
     beatCount++;
   }
 
   function scheduleHihat(soft) {
+    if (!ctx || ctx.state === 'closed') return;
     const now = ctx.currentTime;
     const bufSize = Math.floor(ctx.sampleRate * 0.04);
     const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
     const d = buf.getChannelData(0);
-    for (let i = 0; i < bufSize; i++) {
-      d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.25));
-    }
+    for (let i = 0; i < bufSize; i++) d[i] = (Math.random()*2-1)*Math.exp(-i/(bufSize*0.25));
     const src = ctx.createBufferSource();
     src.buffer = buf;
-    const hpf2 = ctx.createBiquadFilter();
-    hpf2.type = 'highpass';
-    hpf2.frequency.value = soft ? 6000 : 9000;
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass';
+    hpf.frequency.value = soft ? 6000 : 9000;
     const hg = ctx.createGain();
     hg.gain.value = soft ? 0.04 : 0.07;
-    src.connect(hpf2); hpf2.connect(hg); hg.connect(masterGain);
+    src.connect(hpf); hpf.connect(hg); hg.connect(masterGain);
     src.start(now);
   }
 
-  let beat16 = 0;
-  const chordTimer = setInterval(scheduleChord, 2400);
-  const bassTimer  = setInterval(scheduleBass, 600);
-  const hatTimer   = setInterval(() => {
-    scheduleHihat(beat16 % 2 !== 0);
-    beat16++;
-  }, 300);
-
-  // Kick off immediately
   scheduleChord();
   scheduleBass();
+  const chordTimer = setInterval(scheduleChord, 2400);
+  const bassTimer  = setInterval(scheduleBass, 600);
+  const hatTimer   = setInterval(() => { scheduleHihat(beat16++ % 2 !== 0); }, 300);
 
   return { masterGain, chordTimer, bassTimer, hatTimer };
 }
 
-function startMusic() {
-  if (musicPlaying) return;
-  const ctx = getAudioCtx();
-  const resume = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve();
-  resume.then(() => {
-    musicNodes = createCafeMusic();
-    musicPlaying = true;
-  });
-}
-
-function stopMusic() {
-  if (!musicPlaying || !musicNodes) return;
-  clearInterval(musicNodes.chordTimer);
-  clearInterval(musicNodes.bassTimer);
-  clearInterval(musicNodes.hatTimer);
-  try {
-    musicNodes.masterGain.gain.linearRampToValueAtTime(0, getAudioCtx().currentTime + 0.6);
-  } catch(e) {}
-  musicPlaying = false;
-  musicNodes = null;
-}
-
-/* Auto-start on first interaction */
-let musicStarted = false;
-function tryStartMusic() {
-  if (musicStarted) return;
-  musicStarted = true;
-  startMusic();
-}
-document.addEventListener('click',      tryStartMusic, { once: true });
-document.addEventListener('touchstart', tryStartMusic, { once: true, passive: true });
-
-/* Stop when tab is hidden / closed */
+/* إيقاف تام عند إخفاء الصفحة أو إغلاقها */
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    stopMusic();
-    musicStarted = false; // allow restart when they come back
-  }
+  if (document.hidden) stopMusic();
 });
 window.addEventListener('pagehide', stopMusic);
 window.addEventListener('beforeunload', () => {
   stopMusic();
-  if (audioCtx) { try { audioCtx.close(); } catch(e){} }
+  if (audioCtx && audioCtx.state !== 'closed') {
+    try { audioCtx.close(); } catch(e) {}
+  }
 });
+
+/* ============================================================
+   صوت تقليب الورقة — محسّن أكتر واقعية
+   ============================================================ */
+function playPageFlip() {
+  let ctx;
+  try {
+    ctx = getOrCreateCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+  } catch(e) { return; }
+
+  const sr = ctx.sampleRate;
+  const dur = 0.55;
+  const frames = Math.floor(sr * dur);
+  const buf = ctx.createBuffer(2, frames, sr); // Stereo للعمق
+
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < frames; i++) {
+      const t = i / sr;
+      const rnd = () => Math.random() * 2 - 1;
+
+      // 1) ضربة البداية (snap)
+      const snap = Math.exp(-t * 120) * rnd() * 1.5;
+
+      // 2) حفيف الورق (whoosh) — تردد بينزل مع الوقت
+      const whooshFreq = 800 - 600 * (t / dur);
+      const whoosh = Math.exp(-t * 7) * Math.sin(2 * Math.PI * whooshFreq * t) * 0.45;
+
+      // 3) تكشكش الورق (crinkle texture)
+      const crinkle = Math.exp(-t * 22) * rnd() * 0.7;
+
+      // 4) نهاية ورقة تستقر
+      const settle = (t > 0.3 ? Math.exp(-(t - 0.3) * 30) : 0) * rnd() * 0.25;
+
+      // توزيع ستيريو بسيط
+      const pan = ch === 0 ? 0.6 : 1.0;
+      d[i] = (snap + whoosh + crinkle + settle) * pan * 0.5;
+    }
+  }
+
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+
+  // بند باس للتخلص من الترددات الدنيا الزائدة
+  const hpf = ctx.createBiquadFilter();
+  hpf.type = 'highpass';
+  hpf.frequency.value = 200;
+
+  // بند باس علوي لصوت الورق الطبيعي
+  const bpf = ctx.createBiquadFilter();
+  bpf.type = 'bandpass';
+  bpf.frequency.value = 1800;
+  bpf.Q.value = 0.5;
+
+  // شلف علوي لإضافة وضوح
+  const shelf = ctx.createBiquadFilter();
+  shelf.type = 'highshelf';
+  shelf.frequency.value = 4000;
+  shelf.gain.value = 5;
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.9, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+
+  src.connect(hpf);
+  hpf.connect(bpf);
+  bpf.connect(shelf);
+  shelf.connect(gain);
+  gain.connect(ctx.destination);
+  src.start();
+}
 
 /* ============================================================
    LEAVES
@@ -556,7 +580,6 @@ window.addEventListener('beforeunload', () => {
   const container = document.getElementById('leavesContainer');
   const colors = ['#2d5a3d','#4a7c59','#1a3a2a','#6aab7a','#c9a84c'];
   const leafPath = 'M10,1 C10,1 20,8 18,18 C16,28 8,30 5,25 C2,20 4,10 10,1 Z';
-
   function createLeaf() {
     const div = document.createElement('div');
     div.className = 'leaf';
@@ -565,86 +588,99 @@ window.addEventListener('beforeunload', () => {
     const left = Math.random() * 100;
     const duration = 6 + Math.random() * 8;
     const delay = Math.random() * 10;
-    div.style.cssText = `left:${left}vw;top:0;width:${size}px;height:${size}px;
-      animation-duration:${duration}s;animation-delay:${delay}s;`;
-    div.innerHTML = `<svg viewBox="0 0 20 30" width="${size}" height="${size}">
-      <path d="${leafPath}" fill="${color}" opacity="0.75"/></svg>`;
+    div.style.cssText = `left:${left}vw;top:0;width:${size}px;height:${size}px;animation-duration:${duration}s;animation-delay:${delay}s;`;
+    div.innerHTML = `<svg viewBox="0 0 20 30" width="${size}" height="${size}"><path d="${leafPath}" fill="${color}" opacity="0.75"/></svg>`;
     container.appendChild(div);
     setTimeout(() => div.remove(), (duration + delay + 1) * 1000);
   }
-
   for (let i = 0; i < 12; i++) setTimeout(createLeaf, i * 600);
   setInterval(createLeaf, 1200);
 })();
 
 /* ============================================================
-   REALISTIC PAGE FLIP with DRAG
+   PAGE FLIP — سحب في الاتجاهين بدون قيود
    ============================================================ */
 const modal    = document.getElementById('menuModal');
 const flipPage = document.getElementById('flipPage');
 const tabs     = [document.getElementById('tab0'), document.getElementById('tab1')];
 const hint     = document.getElementById('swipeHint');
 
-let currentPage  = 0;   // 0 = showing page1 on top, 1 = flipped away
+let currentPage  = 0;   // 0 = صفحة 1 ظاهرة، 1 = مقلوبة
 let isAnimating  = false;
 
-// Drag state
 let dragActive   = false;
 let dragStartX   = 0;
-let dragStartY   = 0;
 let dragCurrentX = 0;
 let pageWidth    = 0;
+let didDrag      = false;  // لتمييز النقر عن السحب
 
-/* Map horizontal drag distance → rotation angle
-   Full drag across = -180deg (fully flipped)
-   Clamped to [-180, 0] for forward flip, [0,5] for slight reverse wobble */
-function dragToAngle(dx) {
+function getClientX(e) {
+  return e.touches ? e.touches[0].clientX : e.clientX;
+}
+
+/* 
+  المعادلة:
+  - لو currentPage=0: سحب يسار (dx سالب) → زاوية من 0 إلى -180
+  - لو currentPage=1: سحب يمين (dx موجب) → زاوية من -180 إلى 0
+  مع clamp عشان ما تتجاوزش الحدود
+*/
+function calcAngle(dx) {
+  const maxDrag = pageWidth || 300;
   if (currentPage === 0) {
-    // Dragging left flips forward (dx negative → angle more negative)
-    const maxDrag = pageWidth || 300;
+    // سحب يسار = flip forward
     const raw = (dx / maxDrag) * 180;
-    return Math.max(-180, Math.min(5, raw));
+    return Math.max(-180, Math.min(8, raw)); // clamp بين -180 و +8
   } else {
-    // Page already flipped, dragging right unflips (dx positive → angle toward 0 from -180)
-    const maxDrag = pageWidth || 300;
+    // سحب يمين = flip back
     const raw = -180 + (dx / maxDrag) * 180;
-    return Math.max(-180, Math.min(5, raw));
+    return Math.max(-180, Math.min(8, raw));
   }
 }
 
-function setFlipAngle(deg, withTransition) {
-  if (withTransition) {
+function applyAngle(deg, animated) {
+  if (animated) {
     flipPage.classList.add('animating');
   } else {
     flipPage.classList.remove('animating');
   }
-  // perspective skew: as angle approaches -90 the page narrows (realistic)
   flipPage.style.transform = `rotateY(${deg}deg)`;
 
-  // Live shadow intensity
+  // ظل ديناميكي
   const progress = Math.abs(deg) / 180;
-  const shadowBlur = 6 + progress * 44;
-  const shadowOpacity = 0.4 + progress * 0.35;
-  flipPage.style.boxShadow = dragActive
-    ? `${6 + progress*10}px 0 ${shadowBlur}px rgba(0,0,0,${shadowOpacity})`
-    : '';
+  if (!animated) {
+    const blur = 6 + progress * 44;
+    const op   = 0.4 + progress * 0.35;
+    flipPage.style.boxShadow = `${6 + progress*10}px 0 ${blur}px rgba(0,0,0,${op})`;
+  }
 }
 
 function completeFLip(toPage) {
   isAnimating = true;
-  const targetAngle = toPage === 1 ? -180 : 0;
-  setFlipAngle(targetAngle, true);
-
+  flipPage.style.visibility = 'visible';
+  const target = toPage === 1 ? -180 : 0;
+  applyAngle(target, true);
   playPageFlip();
-
   currentPage = toPage;
   updateTabs();
-
   setTimeout(() => {
     isAnimating = false;
     flipPage.classList.remove('animating');
-    // Hide flip page when fully flipped (page 2 visible)
-    flipPage.style.visibility = currentPage === 1 ? 'hidden' : 'visible';
+    flipPage.style.boxShadow = '';
+    // إخفاء الصفحة الأولى لما تكون خلف صفحة 2 (بس مش إلغاء pointer events)
+    if (currentPage === 1) {
+      flipPage.style.visibility = 'hidden';
+    }
+  }, 680);
+}
+
+function snapBack() {
+  isAnimating = true;
+  const target = currentPage === 0 ? 0 : -180;
+  applyAngle(target, true);
+  setTimeout(() => {
+    isAnimating = false;
+    flipPage.classList.remove('animating');
+    flipPage.style.boxShadow = '';
   }, 680);
 }
 
@@ -653,7 +689,7 @@ function updateTabs() {
   tabs[1].classList.toggle('active', currentPage === 1);
   hint.textContent = currentPage === 0
     ? '📖 اسحب الصفحة يساراً للتقليب'
-    : '📖 اسحب يميناً للرجوع';
+    : '📖 اسحب يميناً للرجوع للصفحة الأولى';
 }
 
 function goTo(idx) {
@@ -662,48 +698,39 @@ function goTo(idx) {
   completeFLip(idx);
 }
 
-/* --- Pointer/Touch events on flip page --- */
-function getClientX(e) {
-  return e.touches ? e.touches[0].clientX : e.clientX;
-}
-function getClientY(e) {
-  return e.touches ? e.touches[0].clientY : e.clientY;
-}
+/* ---- Drag handlers ---- */
 
-flipPage.addEventListener('mousedown',  onDragStart, { passive: false });
-flipPage.addEventListener('touchstart', onDragStart, { passive: false });
+// لازم نضيف الـ listeners على document بشكل صحيح
+// وعلى flipPage للبداية
 
 function onDragStart(e) {
   if (isAnimating) return;
-  if (currentPage === 1) {
-    // Page is hidden, shouldn't receive events — but just in case
-    return;
-  }
+
+  // لو الصفحة مقلوبة، السحب للرجوع يبدأ من أي مكان في book scene
+  // لو مش مقلوبة، يبدأ من flip page
   e.preventDefault();
   dragActive   = true;
+  didDrag      = false;
   dragStartX   = getClientX(e);
-  dragStartY   = getClientY(e);
   dragCurrentX = dragStartX;
-  pageWidth    = flipPage.offsetWidth;
+  pageWidth    = flipPage.offsetWidth || document.getElementById('bookScene').offsetWidth;
   flipPage.classList.add('dragging');
   flipPage.style.visibility = 'visible';
 }
-
-document.addEventListener('mousemove',  onDragMove, { passive: false });
-document.addEventListener('touchmove',  onDragMove, { passive: false });
 
 function onDragMove(e) {
   if (!dragActive) return;
   e.preventDefault();
   dragCurrentX = getClientX(e);
   const dx = dragCurrentX - dragStartX;
-  const angle = dragToAngle(dx);
-  setFlipAngle(angle, false);
-}
+  if (Math.abs(dx) > 3) didDrag = true;
 
-document.addEventListener('mouseup',   onDragEnd);
-document.addEventListener('touchend',  onDragEnd);
-document.addEventListener('touchcancel', onDragEnd);
+  // لو currentPage=1 وبيسحب يمين — تمام
+  // لو currentPage=0 وبيسحب يسار — تمام
+  // غير كده بس نوضح بالزاوية الحالية
+  const angle = calcAngle(dx);
+  applyAngle(angle, false);
+}
 
 function onDragEnd(e) {
   if (!dragActive) return;
@@ -711,60 +738,65 @@ function onDragEnd(e) {
   flipPage.classList.remove('dragging');
 
   const dx = dragCurrentX - dragStartX;
-  const angle = dragToAngle(dx);
-
-  // Decide whether to complete or snap back
-  // Threshold: 25% of width OR fast swipe
-  const threshold = (pageWidth || 300) * 0.25;
-  const completed = Math.abs(dx) > threshold;
+  const threshold = (pageWidth || 300) * 0.22; // 22% من العرض كافي
 
   if (currentPage === 0 && dx < -threshold) {
-    // Flip forward to page 2
     completeFLip(1);
   } else if (currentPage === 1 && dx > threshold) {
-    // Flip back to page 1
     completeFLip(0);
   } else {
-    // Snap back
-    isAnimating = true;
-    setFlipAngle(currentPage === 0 ? 0 : -180, true);
-    setTimeout(() => {
-      isAnimating = false;
-      flipPage.classList.remove('animating');
-    }, 680);
+    snapBack();
   }
 }
 
-/* Also allow tap on the book area to flip (for non-drag users) */
+// Flip page — للسحب الأمامي
+flipPage.addEventListener('mousedown',  onDragStart, { passive: false });
+flipPage.addEventListener('touchstart', onDragStart, { passive: false });
+
+// Book scene كله — للسحب الرجعي (لما الصفحة مخفية)
+document.getElementById('bookScene').addEventListener('mousedown', function(e) {
+  if (currentPage === 1 && !isAnimating) onDragStart(e);
+}, { passive: false });
+document.getElementById('bookScene').addEventListener('touchstart', function(e) {
+  if (currentPage === 1 && !isAnimating) onDragStart(e);
+}, { passive: false });
+
+document.addEventListener('mousemove',   onDragMove,  { passive: false });
+document.addEventListener('touchmove',   onDragMove,  { passive: false });
+document.addEventListener('mouseup',     onDragEnd);
+document.addEventListener('touchend',    onDragEnd);
+document.addEventListener('touchcancel', onDragEnd);
+
+// نقر بسيط (بدون drag) — يقلب الصفحة
 document.getElementById('bookScene').addEventListener('click', function(e) {
   if (isAnimating) return;
-  if (dragCurrentX !== dragStartX) return; // was a drag, not a click
+  if (didDrag) { didDrag = false; return; }
   goTo(currentPage === 0 ? 1 : 0);
 });
 
-/* Tab buttons */
 tabs[0].addEventListener('click', (e) => { e.stopPropagation(); goTo(0); });
 tabs[1].addEventListener('click', (e) => { e.stopPropagation(); goTo(1); });
 
 /* ============================================================
-   MODAL OPEN / CLOSE
+   MODAL
    ============================================================ */
 function openMenu() {
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
-  // Reset to page 1
   currentPage = 0;
   isAnimating = false;
+  dragActive  = false;
   flipPage.style.visibility = 'visible';
   flipPage.classList.remove('animating', 'dragging');
-  setFlipAngle(0, false);
+  applyAngle(0, false);
+  flipPage.style.boxShadow = '';
   updateTabs();
-  tryStartMusic(); // ensure music starts
 }
 
 function closeMenu() {
   modal.classList.remove('active');
   document.body.style.overflow = '';
+  dragActive = false;
 }
 
 modal.addEventListener('click', function(e) {
