@@ -18,10 +18,7 @@
 
   /* ===== LEAVES ===== */
   .leaf {
-    position: fixed;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0;
+    position: fixed; pointer-events: none; z-index: 0; opacity: 0;
     animation: leafFall linear infinite;
   }
   .leaf svg { display: block; }
@@ -34,60 +31,29 @@
 
   /* ===== BASE ===== */
   body {
-    min-height: 100vh;
-    background: var(--cream);
+    min-height: 100vh; background: var(--cream);
     font-family: 'Tajawal', sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px 60px;
-    position: relative;
-    overflow-x: hidden;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 20px 60px; position: relative; overflow-x: hidden;
   }
-  .bg-img {
-    position: fixed;
-    inset: 0;
-    background-image: url('https://i.ibb.co/5WhbLWN1/FB-IMG-1779610384065.jpg');
-    background-size: cover;
-    background-position: center;
-    z-index: 0;
-  }
-  .bg-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(245,240,232,0.82);
-    z-index: 1;
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background: radial-gradient(ellipse at 20% 20%, rgba(74,124,89,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(26,58,42,0.06) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
   }
   .container {
     width: 100%; max-width: 440px;
     display: flex; flex-direction: column; align-items: center;
-    position: relative; z-index: 2;
+    position: relative; z-index: 1;
   }
   .logo-wrap {
     width: 150px; height: 150px; border-radius: 50%; overflow: hidden;
     border: 4px solid var(--green-dark);
     box-shadow: 0 8px 30px rgba(26,58,42,0.2), 0 0 0 2px var(--gold);
-    margin-bottom: 20px;
-    animation: fadeDown 0.8s ease both, logoPulse 3s ease-in-out 1s infinite;
-    cursor: pointer;
-    transform-origin: center;
+    margin-bottom: 20px; animation: fadeDown 0.8s ease both;
   }
-  .logo-wrap img {
-    width: 100%; height: 100%; object-fit: cover;
-    transition: transform 0.4s ease;
-  }
-  .logo-wrap:hover img { transform: scale(1.08); }
-  .logo-wrap:active { animation: logoSpin 0.6s ease both; }
-  @keyframes logoPulse {
-    0%,100% { box-shadow: 0 8px 30px rgba(26,58,42,0.2), 0 0 0 2px var(--gold); }
-    50%      { box-shadow: 0 8px 30px rgba(26,58,42,0.35), 0 0 0 5px rgba(201,168,76,0.4), 0 0 25px rgba(74,124,89,0.3); }
-  }
-  @keyframes logoSpin {
-    0%   { transform: rotate(0deg) scale(1); }
-    30%  { transform: rotate(-8deg) scale(1.05); }
-    70%  { transform: rotate(8deg) scale(1.05); }
-    100% { transform: rotate(0deg) scale(1); }
-  }
+  .logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
   .title-block { text-align: center; margin-bottom: 6px; animation: fadeDown 0.9s ease both; }
   .title-block h1 {
     font-family: 'Playfair Display', serif;
@@ -107,6 +73,23 @@
     background: linear-gradient(to right, transparent, var(--green-dark), transparent);
   }
 
+  /* ===== MUSIC BUTTON ===== */
+  .music-btn {
+    position: fixed; top: 16px; left: 16px; z-index: 999;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--green-dark); border: 2px solid var(--gold);
+    color: white; font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: transform 0.2s, background 0.2s;
+  }
+  .music-btn:hover { transform: scale(1.1); background: var(--green-mid); }
+  .music-btn.playing { animation: musicPulse 1.5s ease-in-out infinite; }
+  @keyframes musicPulse {
+    0%, 100% { box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 0 0 rgba(201,168,76,0.4); }
+    50%       { box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 0 8px rgba(201,168,76,0); }
+  }
+
   /* ===== BUTTONS ===== */
   .links { width: 100%; display: flex; flex-direction: column; gap: 14px; }
   .link-btn {
@@ -115,17 +98,7 @@
     text-decoration: none; transition: all 0.3s ease;
     border: 1.5px solid transparent; cursor: pointer;
   }
-  .link-btn:hover  { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(26,58,42,0.2); }
-  .link-btn:active { transform: scale(0.96); transition: transform 0.1s ease; }
-  .link-btn.clicked {
-    animation: btnPop 0.35s ease;
-  }
-  @keyframes btnPop {
-    0%   { transform: scale(1); }
-    40%  { transform: scale(0.93); }
-    70%  { transform: scale(1.04); }
-    100% { transform: scale(1); }
-  }
+  .link-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(26,58,42,0.2); }
   .btn-facebook  { background: var(--green-dark); border-color: var(--green-mid); animation: fadeUp 1.1s ease both; }
   .btn-instagram { background: linear-gradient(135deg, var(--green-mid), var(--green-dark)); border-color: var(--gold); animation: fadeUp 1.2s ease both; }
   .btn-menu      { background: var(--cream-dark); border: 1.5px solid var(--green-dark); animation: fadeUp 1.3s ease both; }
@@ -152,17 +125,15 @@
   /* ===== MODAL ===== */
   .modal-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.92); z-index: 300;
+    background: rgba(0,0,0,0.95); z-index: 200;
     flex-direction: column; align-items: center;
   }
   .modal-overlay.active { display: flex; }
 
-  /* top bar */
   .modal-topbar {
     width: 100%; flex-shrink: 0;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 20px 10px;
-    max-width: 520px; margin: 0 auto;
+    padding: 14px 20px 10px; max-width: 520px; margin: 0 auto;
   }
   .modal-close {
     background: var(--green-dark); color: white; border: none;
@@ -170,47 +141,48 @@
     font-size: 15px; font-family: 'Tajawal', sans-serif;
     font-weight: 700; cursor: pointer;
   }
-  .modal-tabs {
-    display: flex; gap: 8px; align-items: center;
-  }
+  .modal-tabs { display: flex; gap: 8px; align-items: center; }
   .modal-tab {
     padding: 7px 20px; border-radius: 20px;
     font-family: 'Tajawal', sans-serif; font-size: 14px; font-weight: 700;
     color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.08);
     border: 1.5px solid rgba(255,255,255,0.15);
-    cursor: pointer; transition: all 0.25s ease;
-    user-select: none;
+    cursor: pointer; transition: all 0.25s ease; user-select: none;
   }
-  .modal-tab.active {
-    color: white; background: var(--green-dark);
-    border-color: var(--green-dark);
-  }
+  .modal-tab.active { color: white; background: var(--green-dark); border-color: var(--green-dark); }
 
-  /* swipe area - native CSS scroll snap */
-  .swipe-wrapper {
-    flex: 1; width: 100%;
-    display: flex;
-    overflow-x: scroll;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+  /* ===== PAGE FLIP BOOK ===== */
+  .book-container {
+    flex: 1; width: 100%; display: flex;
+    align-items: center; justify-content: center;
+    overflow: hidden; perspective: 1200px;
+    padding: 10px;
   }
-  .swipe-wrapper::-webkit-scrollbar { display: none; }
-  .swipe-slide {
-    flex: 0 0 100vw;
-    width: 100vw;
-    height: 100%;
-    scroll-snap-align: start;
-    overflow-y: auto;
-    padding: 0 10px 20px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+  .book {
+    position: relative; width: 100%; max-width: 500px;
+    height: 100%; display: flex; align-items: flex-start; justify-content: center;
   }
-  .swipe-slide img {
-    width: 100%; max-width: 500px;
-    border-radius: 14px; display: block;
+  .page {
+    position: absolute; top: 0; width: 100%; max-width: 500px;
+    border-radius: 14px; overflow: hidden;
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1.000),
+                opacity 0.3s ease;
+    backface-visibility: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+  .page img { width: 100%; display: block; }
+
+  .page.page-0 { z-index: 2; transform: rotateY(0deg); opacity: 1; }
+  .page.page-1 { z-index: 1; transform: rotateY(0deg); opacity: 1; }
+
+  /* flip out: page 0 rotates away to left */
+  .page.page-0.flipped {
+    transform: rotateY(-180deg);
+    opacity: 0;
+    z-index: 3;
+    pointer-events: none;
   }
 
   /* swipe hint */
@@ -232,27 +204,23 @@
 </head>
 <body>
 
-<div class="bg-img"></div>
-<div class="bg-overlay"></div>
+<!-- Music Button -->
+<button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="موسيقى">🎵</button>
 
 <!-- Leaves -->
 <div id="leavesContainer"></div>
 
 <div class="container">
-
   <div class="logo-wrap">
     <img src="https://i.ibb.co/ksFC1KC5/1000203990.jpg" alt="City Park Logo"/>
   </div>
-
   <div class="title-block">
     <h1>CITY PARK</h1>
     <div class="subtitle">CAFÉ &amp; RESTAURANT</div>
   </div>
-
   <div class="divider"><span>🌿</span></div>
 
   <div class="links">
-
     <a href="https://www.facebook.com/share/18waux3Ns4/" target="_blank" class="link-btn btn-facebook">
       <div class="btn-icon">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="white">
@@ -283,18 +251,16 @@
       <div class="btn-icon">☕</div>
       <div class="btn-text">
         <span class="btn-label">المينيو</span>
-        <span class="btn-sublabel">اسحب بين الصفحتين</span>
+        <span class="btn-sublabel">اضغط للتقليب بين الصفحتين</span>
       </div>
       <span class="btn-arrow">←</span>
     </div>
-
   </div>
 
   <div class="footer">
     <div class="footer-divider"><span>🌿</span></div>
     <p>CITY PARK CAFÉ &amp; RESTAURANT</p>
   </div>
-
 </div>
 
 <!-- Modal -->
@@ -307,49 +273,200 @@
     </div>
   </div>
 
-  <div class="swipe-wrapper" id="swipeWrapper">
-    <div class="swipe-slide">
-      <img src="https://i.ibb.co/hxk59PkH/Picsart-26-05-24-11-07-14-891.png" alt="المينيو صفحة ١"/>
-    </div>
-    <div class="swipe-slide">
-      <img src="https://i.ibb.co/p6xbk4Qf/Picsart-26-05-24-02-50-15-205.png" alt="المينيو صفحة ٢"/>
+  <div class="book-container">
+    <div class="book" id="book">
+      <div class="page page-1" id="page1">
+        <img src="https://i.ibb.co/p6xbk4Qf/Picsart-26-05-24-02-50-15-205.png" alt="المينيو صفحة ٢"/>
+      </div>
+      <div class="page page-0" id="page0">
+        <img src="https://i.ibb.co/hRw0DRLm/Picsart-26-05-24-02-22-09-291.jpg" alt="المينيو صفحة ١"/>
+      </div>
     </div>
   </div>
 
+  <div class="swipe-hint" id="swipeHint">📖 اضغط على الصفحة للتقليب</div>
 </div>
 
 <script>
-/* ====== CLICK SOUND ====== */
-var _ac = null;
-function playClick() {
-  try {
-    if (!_ac) _ac = new (window.AudioContext || window.webkitAudioContext)();
-    var o = _ac.createOscillator();
-    var g = _ac.createGain();
-    o.connect(g); g.connect(_ac.destination);
-    o.type = 'sine';
-    o.frequency.setValueAtTime(820, _ac.currentTime);
-    o.frequency.exponentialRampToValueAtTime(420, _ac.currentTime + 0.08);
-    g.gain.setValueAtTime(0.18, _ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, _ac.currentTime + 0.12);
-    o.start(_ac.currentTime);
-    o.stop(_ac.currentTime + 0.12);
-  } catch(e) {}
+/* ====== AUDIO ENGINE ====== */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+// Page flip sound using Web Audio API
+function playPageFlip() {
+  const duration = 0.35;
+  const bufferSize = audioCtx.sampleRate * duration;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+
+  for (let i = 0; i < bufferSize; i++) {
+    // Whoosh + crinkle effect
+    const t = i / audioCtx.sampleRate;
+    const envelope = Math.exp(-t * 12) * (1 - Math.exp(-t * 80));
+    const noise = (Math.random() * 2 - 1);
+    const crinkle = Math.sin(2 * Math.PI * 800 * t) * 0.15;
+    const whoosh = Math.sin(2 * Math.PI * (200 + 600 * (1 - t / duration)) * t) * 0.1;
+    data[i] = envelope * (noise * 0.7 + crinkle + whoosh);
+  }
+
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.value = 1200;
+  filter.Q.value = 0.8;
+
+  const gainNode = audioCtx.createGain();
+  gainNode.gain.setValueAtTime(0.6, audioCtx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+  source.connect(filter);
+  filter.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  source.start();
 }
 
-function animateBtn(el) {
-  el.classList.remove('clicked');
-  void el.offsetWidth;
-  el.classList.add('clicked');
-  setTimeout(function(){ el.classList.remove('clicked'); }, 400);
+/* ====== BACKGROUND MUSIC ====== */
+let musicPlaying = false;
+let musicNodes = {};
+
+function createCafeMusic() {
+  const ctx = audioCtx;
+
+  // Master gain
+  const masterGain = ctx.createGain();
+  masterGain.gain.value = 0.12;
+  masterGain.connect(ctx.destination);
+
+  // Soft reverb convolver simulation via delay
+  const delay = ctx.createDelay(0.5);
+  delay.delayTime.value = 0.3;
+  const delayGain = ctx.createGain();
+  delayGain.gain.value = 0.25;
+  delay.connect(delayGain);
+  delayGain.connect(delay);
+  delayGain.connect(masterGain);
+
+  // Jazz chord notes (Cmaj7: C E G B)
+  const chordNotes = [261.63, 329.63, 392.00, 493.88];
+  // Walking bass (C D E G A)
+  const bassNotes = [65.41, 73.42, 82.41, 98.00, 110.00, 98.00, 82.41, 73.42];
+
+  let bassIndex = 0;
+  let chordStep = 0;
+
+  function playNote(freq, dur, vol, type = 'sine', when) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, when);
+    gain.gain.linearRampToValueAtTime(vol, when + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, when + dur);
+    osc.connect(gain);
+    gain.connect(delay);
+    gain.connect(masterGain);
+    osc.start(when);
+    osc.stop(when + dur + 0.1);
+  }
+
+  // Soft piano-like chord every 2 seconds
+  function scheduleChord() {
+    const now = ctx.currentTime;
+    const rootNotes = [
+      [261.63, 329.63, 392.00, 493.88],  // Cmaj7
+      [293.66, 369.99, 440.00, 523.25],  // Dmaj7
+      [246.94, 311.13, 369.99, 466.16],  // Bm7
+      [220.00, 277.18, 329.63, 415.30],  // Am7
+    ];
+    const chord = rootNotes[chordStep % rootNotes.length];
+    chord.forEach((f, i) => {
+      playNote(f, 1.8, 0.04 + i * 0.005, 'sine', now + i * 0.04);
+    });
+    // Soft high melody note
+    playNote(chord[2] * 2, 1.2, 0.03, 'triangle', now + 0.1);
+    chordStep++;
+  }
+
+  // Walking bass every beat
+  function scheduleBass() {
+    const now = ctx.currentTime;
+    const freq = bassNotes[bassIndex % bassNotes.length];
+    playNote(freq, 0.45, 0.06, 'triangle', now);
+    playNote(freq * 2, 0.3, 0.02, 'sine', now);
+    bassIndex++;
+  }
+
+  // Soft hi-hat
+  function scheduleHihat() {
+    const now = ctx.currentTime;
+    const bufSize = ctx.sampleRate * 0.05;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.3));
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass';
+    hpf.frequency.value = 8000;
+    const hg = ctx.createGain();
+    hg.gain.value = 0.08;
+    src.connect(hpf); hpf.connect(hg); hg.connect(masterGain);
+    src.start(now);
+  }
+
+  const chordInterval = setInterval(scheduleChord, 2000);
+  const bassInterval  = setInterval(scheduleBass,  500);
+  const hatInterval   = setInterval(scheduleHihat, 250);
+
+  scheduleChord();
+  scheduleBass();
+
+  return { masterGain, chordInterval, bassInterval, hatInterval };
 }
 
-document.querySelectorAll('.link-btn').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    playClick();
-    animateBtn(this);
-  });
-});
+function toggleMusic() {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  const btn = document.getElementById('musicBtn');
+  if (!musicPlaying) {
+    musicNodes = createCafeMusic();
+    musicPlaying = true;
+    btn.textContent = '🔇';
+    btn.classList.add('playing');
+    btn.title = 'إيقاف الموسيقى';
+  } else {
+    clearInterval(musicNodes.chordInterval);
+    clearInterval(musicNodes.bassInterval);
+    clearInterval(musicNodes.hatInterval);
+    musicNodes.masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+    musicPlaying = false;
+    btn.textContent = '🎵';
+    btn.classList.remove('playing');
+    btn.title = 'تشغيل الموسيقى';
+  }
+}
+
+// Auto-start music on first interaction
+document.addEventListener('click', function startOnce() {
+  if (!musicPlaying) {
+    if (audioCtx.state === 'suspended') audioCtx.resume().then(() => {
+      musicNodes = createCafeMusic();
+      musicPlaying = true;
+      const btn = document.getElementById('musicBtn');
+      btn.textContent = '🔇';
+      btn.classList.add('playing');
+    });
+    else {
+      musicNodes = createCafeMusic();
+      musicPlaying = true;
+      const btn = document.getElementById('musicBtn');
+      btn.textContent = '🔇';
+      btn.classList.add('playing');
+    }
+  }
+  document.removeEventListener('click', startOnce);
+}, { once: true });
 
 /* ====== LEAVES ====== */
 (function(){
@@ -365,59 +482,87 @@ document.querySelectorAll('.link-btn').forEach(function(btn) {
     const left = Math.random() * 100;
     const duration = 6 + Math.random() * 8;
     const delay = Math.random() * 10;
-
     div.style.cssText = `left:${left}vw; top:0; width:${size}px; height:${size}px;
       animation-duration:${duration}s; animation-delay:${delay}s;`;
     div.innerHTML = `<svg viewBox="0 0 20 30" width="${size}" height="${size}">
       <path d="${leafPath}" fill="${color}" opacity="0.75"/>
     </svg>`;
     container.appendChild(div);
-
     setTimeout(() => div.remove(), (duration + delay) * 1000);
   }
 
-  // spawn leaves
   for(let i=0; i<12; i++) setTimeout(createLeaf, i * 600);
   setInterval(createLeaf, 1200);
 })();
 
-/* ====== MENU MODAL ====== */
-const modal   = document.getElementById('menuModal');
-const wrapper = document.getElementById('swipeWrapper');
-const tabs    = [document.getElementById('tab0'), document.getElementById('tab1')];
+/* ====== PAGE FLIP MENU ====== */
+const modal = document.getElementById('menuModal');
+const page0 = document.getElementById('page0');
+const page1 = document.getElementById('page1');
+const tabs  = [document.getElementById('tab0'), document.getElementById('tab1')];
+
+let currentPage = 0;
+let isFlipping   = false;
 
 function goTo(idx) {
-  wrapper.scrollTo({ left: idx * window.innerWidth, behavior: 'smooth' });
+  if (idx === currentPage || isFlipping) return;
+  isFlipping = true;
+
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  playPageFlip();
+
+  if (idx === 1) {
+    // Flip page 0 away → reveal page 1
+    page0.classList.add('flipped');
+    page1.style.zIndex = 1;
+    page0.style.zIndex = 3;
+  } else {
+    // Flip back
+    page0.classList.remove('flipped');
+    page0.style.zIndex = 2;
+    page1.style.zIndex = 1;
+  }
+
+  currentPage = idx;
+  tabs[0].classList.toggle('active', idx === 0);
+  tabs[1].classList.toggle('active', idx === 1);
+  document.getElementById('swipeHint').textContent = idx === 0
+    ? '📖 اضغط على الصفحة للتقليب'
+    : '📖 اضغط للرجوع للصفحة الأولى';
+
+  setTimeout(() => { isFlipping = false; }, 750);
 }
+
+// Tap on book to flip
+document.getElementById('book').addEventListener('click', function() {
+  goTo(currentPage === 0 ? 1 : 0);
+});
+
+// Tab clicks
+tabs[0].addEventListener('click', () => goTo(0));
+tabs[1].addEventListener('click', () => goTo(1));
 
 function openMenu() {
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
-  wrapper.scrollLeft = 0;
+  // reset
+  currentPage = 0;
+  page0.classList.remove('flipped');
+  page0.style.zIndex = 2;
+  page1.style.zIndex = 1;
   tabs[0].classList.add('active');
   tabs[1].classList.remove('active');
+  document.getElementById('swipeHint').textContent = '📖 اضغط على الصفحة للتقليب';
 }
+
 function closeMenu() {
   modal.classList.remove('active');
   document.body.style.overflow = '';
 }
 
-var observer = new IntersectionObserver(function(entries) {
-  entries.forEach(function(entry) {
-    if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-      var idx = entry.target.dataset.idx | 0;
-      tabs[0].classList.toggle('active', idx === 0);
-      tabs[1].classList.toggle('active', idx === 1);
-    }
-  });
-}, { root: wrapper, threshold: 0.5 });
-
-document.querySelectorAll('.swipe-slide').forEach(function(slide, i) {
-  slide.dataset.idx = i;
-  observer.observe(slide);
+modal.addEventListener('click', function(e) {
+  if (e.target === modal) closeMenu();
 });
-
-modal.addEventListener('click', function(e) { if (e.target === modal) closeMenu(); });
 </script>
 
 </body>
