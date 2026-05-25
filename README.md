@@ -1,16 +1,781 @@
-## Hi there 👋
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>City Park Cafe</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --green-dark: #1a3a2a;
+    --green-mid: #2d5a3d;
+    --green-light: #4a7c59;
+    --cream: #f5f0e8;
+    --cream-dark: #e8e0d0;
+    --gold: #c9a84c;
+  }
 
-<!--
-**cityparkcafe/cityparkcafe** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+  .leaf { position: fixed; pointer-events: none; z-index: 0; opacity: 0; animation: leafFall linear infinite; }
+  .leaf svg { display: block; }
+  @keyframes leafFall {
+    0%   { transform: translateY(-60px) rotate(0deg) translateX(0px); opacity: 0; }
+    10%  { opacity: 0.7; }
+    90%  { opacity: 0.5; }
+    100% { transform: translateY(110vh) rotate(720deg) translateX(60px); opacity: 0; }
+  }
 
-Here are some ideas to get you started:
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background-image: url('https://cityparkcafe.github.io/background-image-/FB_IMG_1779610384065.jpg');
+    background-size: cover; background-position: center; background-repeat: no-repeat;
+    opacity: 0.13; pointer-events: none; z-index: 0;
+  }
+  body {
+    min-height: 100vh; background: var(--cream); font-family: 'Tajawal', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 20px 60px; position: relative; overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background: radial-gradient(ellipse at 20% 20%, rgba(74,124,89,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(26,58,42,0.06) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+  .container { width: 100%; max-width: 440px; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
+  .logo-wrap {
+    width: 150px; height: 150px; border-radius: 50%; overflow: hidden;
+    border: 4px solid var(--green-dark);
+    box-shadow: 0 8px 30px rgba(26,58,42,0.2), 0 0 0 2px var(--gold);
+    margin-bottom: 20px; animation: fadeDown 0.8s ease both;
+  }
+  .logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .title-block { text-align: center; margin-bottom: 6px; animation: fadeDown 0.9s ease both; }
+  .title-block h1 { font-family: 'Playfair Display', serif; font-size: 34px; color: var(--green-dark); letter-spacing: 3px; }
+  .title-block .subtitle { font-family: 'Playfair Display', serif; font-size: 12px; color: var(--gold); letter-spacing: 4px; text-transform: uppercase; margin-top: 4px; }
+  .divider { display: flex; align-items: center; gap: 12px; margin: 14px 0 22px; width: 100%; animation: fadeDown 1s ease both; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--green-dark), transparent); }
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+  .links { width: 100%; display: flex; flex-direction: column; gap: 14px; }
+  .link-btn {
+    display: flex; align-items: center; gap: 16px; padding: 18px 24px; border-radius: 16px;
+    text-decoration: none; transition: all 0.3s ease; border: 1.5px solid transparent; cursor: pointer;
+  }
+  .link-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(26,58,42,0.2); }
+  .btn-facebook  { background: var(--green-dark); border-color: var(--green-mid); animation: fadeUp 1.1s ease both; }
+  .btn-instagram { background: linear-gradient(135deg, var(--green-mid), var(--green-dark)); border-color: var(--gold); animation: fadeUp 1.2s ease both; }
+  .btn-menu      { background: var(--cream-dark); border: 1.5px solid var(--green-dark); animation: fadeUp 1.3s ease both; }
+  .btn-map       { background: var(--green-dark); border-color: var(--gold); animation: fadeUp 1.4s ease both; }
+  .btn-share     { background: linear-gradient(135deg, var(--green-light), var(--green-mid)); border-color: var(--cream-dark); animation: fadeUp 1.5s ease both; }
+  .btn-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 22px; }
+  .btn-facebook .btn-icon  { background: rgba(255,255,255,0.15); }
+  .btn-instagram .btn-icon { background: rgba(201,168,76,0.2); }
+  .btn-menu .btn-icon      { background: var(--green-dark); color: white; font-size: 20px; }
+  .btn-map .btn-icon       { background: rgba(201,168,76,0.2); }
+  .btn-share .btn-icon     { background: rgba(255,255,255,0.15); }
+  .btn-text { flex: 1; }
+  .btn-label    { font-size: 16px; font-weight: 700; display: block; }
+  .btn-sublabel { font-size: 12px; display: block; margin-top: 2px; }
+  .btn-facebook .btn-label, .btn-instagram .btn-label, .btn-map .btn-label, .btn-share .btn-label { color: white; }
+  .btn-facebook .btn-sublabel, .btn-instagram .btn-sublabel, .btn-map .btn-sublabel, .btn-share .btn-sublabel { color: rgba(255,255,255,0.6); }
+  .btn-menu .btn-label    { color: var(--green-dark); }
+  .btn-menu .btn-sublabel { color: var(--green-light); }
+  .btn-arrow { font-size: 18px; transition: transform 0.3s; }
+  .btn-facebook .btn-arrow, .btn-instagram .btn-arrow, .btn-map .btn-arrow, .btn-share .btn-arrow { color: rgba(255,255,255,0.5); }
+  .btn-menu .btn-arrow { color: var(--green-dark); }
+  .link-btn:hover .btn-arrow { transform: translateX(-4px); }
+
+  /* ===== خريطة جوجل ===== */
+  .map-section {
+    width: 100%; margin-top: 20px; border-radius: 18px; overflow: hidden;
+    border: 2px solid var(--green-dark); box-shadow: 0 8px 30px rgba(26,58,42,0.15);
+    animation: fadeUp 1.6s ease both; position: relative;
+  }
+  .map-section iframe { width: 100%; height: 220px; display: block; border: none; }
+  .map-nav-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 13px; background: var(--green-dark); color: white;
+    font-family: 'Tajawal', sans-serif; font-size: 15px; font-weight: 700;
+    border: none; cursor: pointer; transition: background 0.2s ease; text-decoration: none;
+  }
+  .map-nav-btn:hover { background: var(--green-mid); }
+
+  /* ===== أزرار ثابتة ===== */
+  .sound-btn {
+    position: fixed; bottom: 20px; left: 20px; z-index: 300;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--green-dark); border: 2px solid var(--gold);
+    color: white; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.3s ease;
+  }
+  .sound-btn:hover { transform: scale(1.1); }
+  .sound-btn.muted { background: #555; border-color: #888; }
+
+  .zoom-reset-btn {
+    position: fixed; bottom: 20px; right: 20px; z-index: 300;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--green-dark); border: 2px solid var(--gold);
+    color: white; font-size: 15px; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.3s ease;
+    font-family: 'Tajawal', sans-serif; font-weight: 700;
+  }
+  .zoom-reset-btn.visible { display: flex; }
+  .zoom-reset-btn:hover { transform: scale(1.1); }
+
+  /* زر الشاشة الكاملة */
+  .fullscreen-btn {
+    position: fixed; bottom: 76px; right: 20px; z-index: 300;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: rgba(26,58,42,0.85); border: 2px solid var(--gold);
+    color: white; font-size: 18px; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.3s ease;
+  }
+  .fullscreen-btn.modal-open { display: flex; }
+  .fullscreen-btn:hover { transform: scale(1.1); }
+
+  /* مؤشر الزوم */
+  .zoom-indicator {
+    position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+    background: rgba(26,58,42,0.85); color: var(--gold);
+    padding: 5px 16px; border-radius: 20px; font-size: 13px;
+    font-family: 'Tajawal', sans-serif; font-weight: 700;
+    z-index: 300; pointer-events: none;
+    opacity: 0; transition: opacity 0.3s ease; white-space: nowrap;
+  }
+  .zoom-indicator.visible { opacity: 1; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.96); z-index: 200;
+    flex-direction: column; align-items: center; touch-action: none;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal-topbar {
+    width: 100%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px 10px; max-width: 520px; margin: 0 auto;
+  }
+  .modal-close {
+    background: var(--green-dark); color: white; border: none;
+    border-radius: 30px; padding: 9px 24px;
+    font-size: 15px; font-family: 'Tajawal', sans-serif; font-weight: 700; cursor: pointer;
+  }
+  .modal-tabs { display: flex; gap: 8px; align-items: center; }
+  .modal-tab {
+    padding: 7px 20px; border-radius: 20px;
+    font-family: 'Tajawal', sans-serif; font-size: 14px; font-weight: 700;
+    color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    cursor: pointer; transition: all 0.25s ease; user-select: none;
+  }
+  .modal-tab.active { color: white; background: var(--green-dark); border-color: var(--green-dark); }
+
+  /* ===== BOOK ===== */
+  .book-wrapper {
+    flex: 1; width: 100%; display: flex; align-items: center; justify-content: center;
+    overflow: hidden; padding: 10px 20px; touch-action: none;
+  }
+  .zoom-container { width: 100%; max-width: 480px; transform-origin: center center; transition: transform 0.15s ease; will-change: transform; }
+  .book-scene { position: relative; width: 100%; perspective: 1400px; perspective-origin: center center; }
+  .back-page { width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.6); display: block; user-select: none; -webkit-user-drag: none; }
+  .back-page img { width: 100%; display: block; pointer-events: none; }
+  .flip-page {
+    position: absolute; top: 0; left: 0; right: 0; border-radius: 12px; overflow: hidden;
+    transform-origin: left center; transform-style: preserve-3d;
+    box-shadow: 6px 0 30px rgba(0,0,0,0.5); cursor: grab; user-select: none;
+    will-change: transform; -webkit-user-drag: none;
+  }
+  .flip-page.animating { transition: transform 0.65s cubic-bezier(0.645,0.045,0.355,1.000), box-shadow 0.3s ease; }
+  .flip-page:active { cursor: grabbing; }
+  .flip-front { width: 100%; display: block; pointer-events: none; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .flip-front img { width: 100%; display: block; }
+  .flip-back {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    transform: rotateY(180deg); background: #1a3a2a; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .flip-back-inner { color: var(--gold); font-family: 'Playfair Display', serif; font-size: 22px; text-align: center; opacity: 0.5; }
+  .flip-page.dragging { box-shadow: 12px 0 50px rgba(0,0,0,0.7); }
+  .swipe-hint { flex-shrink: 0; text-align: center; color: rgba(255,255,255,0.4); font-size: 12px; padding: 8px 0 6px; letter-spacing: 1px; }
+
+  /* ===== اختيار صوت التقليب ===== */
+  .sound-picker-bar {
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    gap: 6px; padding: 0 12px 12px; flex-wrap: wrap;
+  }
+  .sound-picker-label { color: rgba(255,255,255,0.45); font-size: 11px; font-family: 'Tajawal', sans-serif; width: 100%; text-align: center; margin-bottom: 4px; }
+  .sound-opt {
+    padding: 5px 14px; border-radius: 20px; font-family: 'Tajawal', sans-serif;
+    font-size: 12px; font-weight: 700; border: 1.5px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.07);
+    cursor: pointer; transition: all 0.2s ease; user-select: none;
+  }
+  .sound-opt.active { color: white; background: var(--green-dark); border-color: var(--gold); }
+  .sound-opt:hover { border-color: rgba(201,168,76,0.5); color: rgba(255,255,255,0.85); }
+
+  /* toast مشاركة */
+  .share-toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--green-dark); color: white; padding: 10px 22px; border-radius: 30px;
+    font-family: 'Tajawal', sans-serif; font-size: 14px; font-weight: 700;
+    z-index: 400; border: 1.5px solid var(--gold);
+    opacity: 0; transition: all 0.3s ease; pointer-events: none; white-space: nowrap;
+  }
+  .share-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .footer { margin-top: 28px; text-align: center; animation: fadeUp 1.7s ease both; position: relative; z-index: 1; }
+  .footer-divider { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .footer-divider::before, .footer-divider::after { content: ''; flex: 1; height: 1px; background: var(--cream-dark); }
+  .footer p { font-size: 11px; color: #aaa; letter-spacing: 1px; }
+
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp   { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+
+<div id="leavesContainer"></div>
+<button class="sound-btn" id="soundBtn" onclick="toggleSound()" title="تشغيل/إيقاف الموسيقى">🔇</button>
+<button class="zoom-reset-btn" id="zoomResetBtn" onclick="resetZoom()" title="إلغاء الزوم">1:1</button>
+<button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="شاشة كاملة">⛶</button>
+<div class="zoom-indicator" id="zoomIndicator"></div>
+<div class="share-toast" id="shareToast">✅ تم نسخ الرابط!</div>
+
+<div class="container">
+  <div class="logo-wrap">
+    <img src="https://i.ibb.co/ksFC1KC5/1000203990.jpg" alt="City Park Logo"/>
+  </div>
+  <div class="title-block">
+    <h1>CITY PARK</h1>
+    <div class="subtitle">CAFÉ &amp; RESTAURANT</div>
+  </div>
+  <div class="divider"><span>🌿</span></div>
+
+  <div class="links">
+    <a href="https://www.facebook.com/share/18waux3Ns4/" target="_blank" class="link-btn btn-facebook">
+      <div class="btn-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="white">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>
+      </div>
+      <div class="btn-text"><span class="btn-label">Facebook</span><span class="btn-sublabel">تابعنا على فيسبوك</span></div>
+      <span class="btn-arrow">←</span>
+    </a>
+
+    <a href="https://www.instagram.com/city_park_1?igsh=ZWpzMDdwZThmeHQ=" target="_blank" class="link-btn btn-instagram">
+      <div class="btn-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="white">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+        </svg>
+      </div>
+      <div class="btn-text"><span class="btn-label">Instagram</span><span class="btn-sublabel">@city_park_1</span></div>
+      <span class="btn-arrow">←</span>
+    </a>
+
+    <div onclick="openMenu()" class="link-btn btn-menu">
+      <div class="btn-icon">☕</div>
+      <div class="btn-text"><span class="btn-label">المينيو</span><span class="btn-sublabel">اسحب للتقليب · قرصين للزوم</span></div>
+      <span class="btn-arrow">←</span>
+    </div>
+
+    <div onclick="shareLink()" class="link-btn btn-share">
+      <div class="btn-icon">🔗</div>
+      <div class="btn-text"><span class="btn-label">مشاركة الموقع</span><span class="btn-sublabel">انسخ رابط الصفحة وابعته لأي حد</span></div>
+      <span class="btn-arrow">←</span>
+    </div>
+  </div>
+
+  <!-- خريطة جوجل -->
+  <div class="map-section">
+    <iframe
+      src="https://maps.google.com/maps?q=City+Park+Cafe+%D8%A7%D9%84%D8%B4%D8%B1%D9%82%D9%8A%D8%A9+%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D8%AD%D9%8A%D8%A9+%D8%A7%D9%84%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9&output=embed&z=15"
+      allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+    <a class="map-nav-btn"
+       href="https://www.google.com/maps/search/City+Park+Cafe+الشرقية+الصالحية+الجديدة"
+       target="_blank">
+      📍 وجّهني للكافيه
+    </a>
+  </div>
+
+  <div class="footer">
+    <div class="footer-divider"><span>🌿</span></div>
+    <p>CITY PARK CAFÉ &amp; RESTAURANT</p>
+  </div>
+</div>
+
+<!-- Modal المينيو -->
+<div class="modal-overlay" id="menuModal">
+  <div class="modal-topbar">
+    <button class="modal-close" onclick="closeMenu()">✕ إغلاق</button>
+    <div class="modal-tabs">
+      <div class="modal-tab active" id="tab0" onclick="goTo(0)">صفحة ١</div>
+      <div class="modal-tab" id="tab1" onclick="goTo(1)">صفحة ٢</div>
+    </div>
+  </div>
+
+  <div class="book-wrapper" id="bookWrapper">
+    <div class="zoom-container" id="zoomContainer">
+      <div class="book-scene" id="bookScene">
+        <div class="back-page">
+          <img src="https://cityparkcafe.github.io/Menu-2/Picsart_26-05-25_13-02-35-341.png" alt="المينيو صفحة ٢" draggable="false"
+               onerror="this.src='https://i.ibb.co/p6xbk4Qf/Picsart-26-05-24-02-50-15-205.png'"/>
+        </div>
+        <div class="flip-page" id="flipPage">
+          <div class="flip-front">
+            <img src="https://cityparkcafe.github.io/Menu-1/Picsart_26-05-25_15-54-15-577.jpg" alt="المينيو صفحة ١" draggable="false"
+                 onerror="this.src='https://i.ibb.co/hRw0DRLm/Picsart-26-05-24-02-22-09-291.jpg'"/>
+          </div>
+          <div class="flip-back"><div class="flip-back-inner">🌿<br/>CITY PARK</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="swipe-hint" id="swipeHint">📖 اسحب يساراً للتقليب · قرصين للزوم · ضغطتين لزوم سريع</div>
+
+  <!-- اختيار صوت التقليب -->
+  <div class="sound-picker-bar">
+    <div class="sound-picker-label">🎵 صوت تقليب الورق</div>
+    <div class="sound-opt active" id="sopt0" onclick="setFlipSound(0)">ورق مطبوع</div>
+    <div class="sound-opt" id="sopt1" onclick="setFlipSound(1)">ورق ناعم</div>
+    <div class="sound-opt" id="sopt2" onclick="setFlipSound(2)">كتاب قديم</div>
+    <div class="sound-opt" id="sopt3" onclick="setFlipSound(3)">بدون صوت</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   AUDIO — موسيقى الخلفية
+   ============================================================ */
+let audioCtx = null, musicNodes = null, musicOn = false;
+const soundBtn = document.getElementById('soundBtn');
+
+function getOrCreateCtx() {
+  if (!audioCtx || audioCtx.state === 'closed')
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function toggleSound() { musicOn ? stopMusic() : startMusic(); }
+function startMusic() {
+  if (musicOn) return;
+  const ctx = getOrCreateCtx();
+  (ctx.state === 'suspended' ? ctx.resume() : Promise.resolve()).then(() => {
+    musicNodes = buildCafeMusic(ctx); musicOn = true;
+    soundBtn.textContent = '🔊'; soundBtn.classList.remove('muted');
+  });
+}
+function stopMusic() {
+  if (!musicOn || !musicNodes) return;
+  try {
+    clearInterval(musicNodes.chordTimer); clearInterval(musicNodes.bassTimer); clearInterval(musicNodes.hatTimer);
+    const ctx = audioCtx;
+    if (ctx && ctx.state !== 'closed') {
+      musicNodes.masterGain.gain.cancelScheduledValues(ctx.currentTime);
+      musicNodes.masterGain.gain.setValueAtTime(musicNodes.masterGain.gain.value, ctx.currentTime);
+      musicNodes.masterGain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
+      setTimeout(() => { try { ctx.close(); } catch(e){} audioCtx = null; }, 500);
+    }
+  } catch(e) {}
+  musicOn = false; musicNodes = null;
+  soundBtn.textContent = '🔇'; soundBtn.classList.add('muted');
+}
+function buildCafeMusic(ctx) {
+  const masterGain = ctx.createGain(); masterGain.gain.value = 0; masterGain.connect(ctx.destination);
+  masterGain.gain.linearRampToValueAtTime(0.11, ctx.currentTime + 2);
+  const delay = ctx.createDelay(0.6); delay.delayTime.value = 0.35;
+  const delayGain = ctx.createGain(); delayGain.gain.value = 0.22;
+  delay.connect(delayGain); delayGain.connect(delay); delayGain.connect(masterGain);
+  const delayLPF = ctx.createBiquadFilter(); delayLPF.type = 'lowpass'; delayLPF.frequency.value = 2200;
+  delayGain.connect(delayLPF); delayLPF.connect(masterGain);
+  function playNote(freq,dur,vol,type,when) {
+    try {
+      if (!ctx||ctx.state==='closed') return;
+      const osc=ctx.createOscillator(), g=ctx.createGain();
+      osc.type=type||'sine'; osc.frequency.value=freq;
+      g.gain.setValueAtTime(0,when); g.gain.linearRampToValueAtTime(vol,when+0.06);
+      g.gain.setValueAtTime(vol*0.7,when+dur*0.5); g.gain.exponentialRampToValueAtTime(0.0001,when+dur);
+      osc.connect(g); g.connect(delay); g.connect(masterGain); osc.start(when); osc.stop(when+dur+0.15);
+    } catch(e){}
+  }
+  const progressions=[[220,261.63,329.63,392,493.88],[174.61,220,261.63,329.63,392],[261.63,329.63,392,493.88,587.33],[196,246.94,293.66,349.23,440]];
+  const bassLines=[[55,65.41,73.42,82.41],[43.65,55,65.41,73.42],[65.41,73.42,82.41,98],[49,61.74,73.42,82.41]];
+  let chordIdx=0,beatCount=0,beat16=0;
+  function scheduleChord() {
+    if (!ctx||ctx.state==='closed') return; const now=ctx.currentTime;
+    const chord=progressions[chordIdx%progressions.length];
+    chord.forEach((f,i)=>{ const oct=i<2?1:(i<4?2:4); playNote(f*oct,2.2,0.022+i*0.003,'sine',now+i*0.06); });
+    playNote(chord[2]*4,1.4,0.018,'triangle',now+0.15);
+    if(Math.random()>0.5) playNote(chord[3]*4,0.9,0.012,'triangle',now+0.8); chordIdx++;
+  }
+  function scheduleBass() {
+    if (!ctx||ctx.state==='closed') return; const now=ctx.currentTime;
+    const prog=bassLines[Math.floor(beatCount/4)%bassLines.length], note=prog[beatCount%prog.length];
+    playNote(note,0.5,0.065,'triangle',now); playNote(note*2,0.3,0.015,'sine',now); beatCount++;
+  }
+  function scheduleHihat(soft) {
+    if (!ctx||ctx.state==='closed') return; const now=ctx.currentTime;
+    const bufSize=Math.floor(ctx.sampleRate*0.04), buf=ctx.createBuffer(1,bufSize,ctx.sampleRate);
+    const d=buf.getChannelData(0); for(let i=0;i<bufSize;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(bufSize*0.25));
+    const src=ctx.createBufferSource(); src.buffer=buf;
+    const hpf=ctx.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=soft?6000:9000;
+    const hg=ctx.createGain(); hg.gain.value=soft?0.04:0.07;
+    src.connect(hpf); hpf.connect(hg); hg.connect(masterGain); src.start(now);
+  }
+  scheduleChord(); scheduleBass();
+  const chordTimer=setInterval(scheduleChord,2400), bassTimer=setInterval(scheduleBass,600);
+  const hatTimer=setInterval(()=>{ scheduleHihat(beat16++%2!==0); },300);
+  return { masterGain, chordTimer, bassTimer, hatTimer };
+}
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) stopMusic(); });
+window.addEventListener('pagehide', stopMusic);
+
+/* ============================================================
+   أصوات تقليب الورق — 3 أنماط مختلفة
+   ============================================================ */
+let flipSoundMode = 0; // 0=مطبوع, 1=ناعم, 2=قديم, 3=صامت
+
+function setFlipSound(mode) {
+  flipSoundMode = mode;
+  document.querySelectorAll('.sound-opt').forEach((el,i) => el.classList.toggle('active', i === mode));
+}
+
+function playPageFlip() {
+  if (flipSoundMode === 3) return; // صامت
+  let ctx;
+  try { ctx = getOrCreateCtx(); if (ctx.state === 'suspended') ctx.resume(); } catch(e) { return; }
+
+  const sr = ctx.sampleRate;
+  const rnd = () => Math.random() * 2 - 1;
+
+  if (flipSoundMode === 0) {
+    /* ===== ورق مطبوع ثقيل ===== */
+    const dur = 0.55, N = Math.floor(sr * dur), buf = ctx.createBuffer(2, N, sr);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch), pan = ch === 0 ? 1.0 : 0.8;
+      for (let i = 0; i < N; i++) {
+        const t = i / sr;
+        const snap    = Math.exp(-t * 320) * rnd() * 2.2;
+        const sweepF  = 1800 * Math.exp(-t * 5.5) + 400;
+        const whoosh  = Math.exp(-t * 8.5) * Math.sin(2*Math.PI*sweepF*t) * 0.6;
+        const air     = Math.exp(-t * 7) * rnd() * 0.55;
+        const gRate   = 0.0004, gIdx = Math.floor(t/gRate), gT = t - gIdx*gRate;
+        const grain   = Math.exp(-t*14) * Math.exp(-gT/(gRate*0.6)) * rnd() * 0.9;
+        const flexT   = t - 0.15;
+        const flex    = flexT > 0 ? Math.exp(-flexT*30)*Math.sin(2*Math.PI*420*flexT)*0.35 : 0;
+        const landT   = t - 0.33;
+        const land    = landT > 0 ? Math.exp(-landT*70)*rnd()*1.1 + Math.exp(-landT*28)*Math.sin(2*Math.PI*260*landT)*0.45 : 0;
+        const settT   = t - 0.42;
+        const sett    = (settT>0&&settT<0.12) ? Math.exp(-settT*90)*rnd()*0.3 : 0;
+        d[i] = (snap+whoosh+air+grain+flex+land+sett)*pan*0.38;
+      }
+    }
+    _playBuf(ctx, buf, 200, [[3500,1.0,7],[6000,1.2,5]], 9000, 0.38, dur);
+
+  } else if (flipSoundMode === 1) {
+    /* ===== ورق ناعم خفيف ===== */
+    const dur = 0.4, N = Math.floor(sr * dur), buf = ctx.createBuffer(2, N, sr);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch), pan = ch === 0 ? 0.9 : 0.75;
+      for (let i = 0; i < N; i++) {
+        const t = i / sr;
+        const snap   = Math.exp(-t * 180) * rnd() * 1.1;
+        const sweepF = 1200 * Math.exp(-t * 6) + 300;
+        const whoosh = Math.exp(-t * 10) * Math.sin(2*Math.PI*sweepF*t) * 0.4;
+        const air    = Math.exp(-t * 9) * rnd() * 0.35;
+        const landT  = t - 0.24;
+        const land   = landT > 0 ? Math.exp(-landT*80)*rnd()*0.7 : 0;
+        d[i] = (snap+whoosh+air+land)*pan*0.32;
+      }
+    }
+    _playBuf(ctx, buf, 300, [[2500,0.9,5]], 7000, 0.32, dur);
+
+  } else if (flipSoundMode === 2) {
+    /* ===== كتاب قديم — صوت أكثر حدة وكشكشة ===== */
+    const dur = 0.7, N = Math.floor(sr * dur), buf = ctx.createBuffer(2, N, sr);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch), pan = ch === 0 ? 1.0 : 0.85;
+      for (let i = 0; i < N; i++) {
+        const t = i / sr;
+        const snap   = Math.exp(-t * 250) * rnd() * 2.8;
+        const crinkle= Math.exp(-t * 6) * (Math.random() > 0.45 ? rnd() * 1.2 : 0);
+        const sweepF = 900 * Math.exp(-t * 4) + 250;
+        const whoosh = Math.exp(-t * 7) * Math.sin(2*Math.PI*sweepF*t) * 0.5;
+        const air    = Math.exp(-t * 5) * rnd() * 0.65;
+        const flexT  = t - 0.20; const flex2T = t - 0.38;
+        const flex   = flexT>0 ? Math.exp(-flexT*20)*Math.sin(2*Math.PI*300*flexT)*0.45 : 0;
+        const flex2  = flex2T>0 ? Math.exp(-flex2T*35)*Math.sin(2*Math.PI*480*flex2T)*0.25 : 0;
+        const landT  = t - 0.45;
+        const land   = landT > 0 ? Math.exp(-landT*55)*rnd()*1.3 + Math.exp(-landT*20)*Math.sin(2*Math.PI*200*landT)*0.55 : 0;
+        const settT  = t - 0.55;
+        const sett   = (settT>0&&settT<0.14) ? Math.exp(-settT*70)*rnd()*0.4 : 0;
+        d[i] = (snap+crinkle+whoosh+air+flex+flex2+land+sett)*pan*0.4;
+      }
+    }
+    _playBuf(ctx, buf, 120, [[2000,1.1,8],[5500,1.4,6]], 10000, 0.42, dur);
+  }
+}
+
+function _playBuf(ctx, buf, hpfFreq, peaks, lpfFreq, vol, dur) {
+  const src = ctx.createBufferSource(); src.buffer = buf;
+  const hpf = ctx.createBiquadFilter(); hpf.type = 'highpass'; hpf.frequency.value = hpfFreq;
+  let last = hpf; src.connect(hpf);
+  peaks.forEach(([freq, Q, gain]) => {
+    const pk = ctx.createBiquadFilter(); pk.type='peaking'; pk.frequency.value=freq; pk.Q.value=Q; pk.gain.value=gain;
+    last.connect(pk); last = pk;
+  });
+  const lpf = ctx.createBiquadFilter(); lpf.type='lowpass'; lpf.frequency.value=lpfFreq;
+  last.connect(lpf);
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value=-14; comp.knee.value=6; comp.ratio.value=5; comp.attack.value=0.001; comp.release.value=0.08;
+  lpf.connect(comp);
+  const g = ctx.createGain(); g.gain.setValueAtTime(1.3, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+dur+0.05);
+  comp.connect(g); g.connect(ctx.destination); src.start();
+}
+
+/* ============================================================
+   LEAVES
+   ============================================================ */
+(function(){
+  const container = document.getElementById('leavesContainer');
+  const colors = ['#2d5a3d','#4a7c59','#1a3a2a','#6aab7a','#c9a84c'];
+  const leafPath = 'M10,1 C10,1 20,8 18,18 C16,28 8,30 5,25 C2,20 4,10 10,1 Z';
+  function createLeaf() {
+    const div = document.createElement('div'); div.className='leaf';
+    const size=14+Math.random()*18, color=colors[Math.floor(Math.random()*colors.length)];
+    const left=Math.random()*100, duration=6+Math.random()*8, delay=Math.random()*10;
+    div.style.cssText=`left:${left}vw;top:0;width:${size}px;height:${size}px;animation-duration:${duration}s;animation-delay:${delay}s;`;
+    div.innerHTML=`<svg viewBox="0 0 20 30" width="${size}" height="${size}"><path d="${leafPath}" fill="${color}" opacity="0.75"/></svg>`;
+    container.appendChild(div); setTimeout(()=>div.remove(),(duration+delay+1)*1000);
+  }
+  for(let i=0;i<12;i++) setTimeout(createLeaf,i*600);
+  setInterval(createLeaf,1200);
+})();
+
+/* ============================================================
+   مشاركة الرابط
+   ============================================================ */
+function shareLink() {
+  const url = window.location.href;
+  if (navigator.share) {
+    navigator.share({ title: 'City Park Café', url }).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      const toast = document.getElementById('shareToast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }).catch(() => {
+      prompt('انسخ الرابط:', url);
+    });
+  }
+}
+
+/* ============================================================
+   شاشة كاملة
+   ============================================================ */
+function toggleFullscreen() {
+  const el = document.getElementById('menuModal');
+  if (!document.fullscreenElement) {
+    (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen).call(el);
+    document.getElementById('fullscreenBtn').textContent = '✕⛶';
+  } else {
+    (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen).call(document);
+    document.getElementById('fullscreenBtn').textContent = '⛶';
+  }
+}
+
+/* ============================================================
+   ZOOM + PAN + DOUBLE-TAP ZOOM
+   ============================================================ */
+const zoomContainer = document.getElementById('zoomContainer');
+const zoomResetBtn  = document.getElementById('zoomResetBtn');
+const zoomIndicator = document.getElementById('zoomIndicator');
+const bookWrapper   = document.getElementById('bookWrapper');
+const MIN_SCALE=1.0, MAX_SCALE=4.0;
+let zScale=1, zPanX=0, zPanY=0;
+let pinchActive=false, pinchStartDist=0, pinchStartScale=1;
+let panActive=false, panStartX=0, panStartY=0, panStartPX=0, panStartPY=0;
+let zoomIndicatorTimer=null;
+// double-tap
+let lastTapTime=0, lastTapX=0, lastTapY=0;
+
+function getTouchDist(t){ const dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY; return Math.sqrt(dx*dx+dy*dy); }
+function getTouchCenter(t){ return {x:(t[0].clientX+t[1].clientX)/2,y:(t[0].clientY+t[1].clientY)/2}; }
+
+function applyZoom(animated) {
+  zoomContainer.style.transition = animated ? 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)' : 'none';
+  zoomContainer.style.transform  = `scale(${zScale}) translate(${zPanX}px,${zPanY}px)`;
+  zoomContainer.style.transformOrigin = 'center center';
+  zoomResetBtn.classList.toggle('visible', zScale > 1.05);
+  showZoomIndicator();
+}
+function showZoomIndicator() {
+  zoomIndicator.textContent = `زوم ${Math.round(zScale*100)}%`;
+  zoomIndicator.classList.add('visible');
+  clearTimeout(zoomIndicatorTimer);
+  zoomIndicatorTimer = setTimeout(()=>zoomIndicator.classList.remove('visible'), 1500);
+}
+function clampPan() {
+  const mX=((zScale-1)/zScale)*(bookWrapper.offsetWidth/2);
+  const mY=((zScale-1)/zScale)*(bookWrapper.offsetHeight/2);
+  zPanX=Math.max(-mX,Math.min(mX,zPanX)); zPanY=Math.max(-mY,Math.min(mY,zPanY));
+}
+function resetZoom() { zScale=1; zPanX=0; zPanY=0; applyZoom(true); }
+
+bookWrapper.addEventListener('touchstart', function(e) {
+  if (e.touches.length === 2) {
+    e.preventDefault(); e.stopPropagation();
+    pinchActive=true; panActive=false; dragActive=false;
+    pinchStartDist=getTouchDist(e.touches); pinchStartScale=zScale;
+  } else if (e.touches.length === 1 && zScale > 1.05) {
+    e.preventDefault(); panActive=true; pinchActive=false;
+    panStartX=e.touches[0].clientX; panStartY=e.touches[0].clientY;
+    panStartPX=zPanX; panStartPY=zPanY;
+  } else if (e.touches.length === 1) {
+    // كشف الضغطة المزدوجة
+    const now = Date.now(), tx=e.touches[0].clientX, ty=e.touches[0].clientY;
+    if (now - lastTapTime < 300 && Math.abs(tx-lastTapX)<40 && Math.abs(ty-lastTapY)<40) {
+      e.preventDefault();
+      if (zScale > 1.5) { resetZoom(); } else {
+        // زوم 2.5× على مكان الضغط
+        zScale = 2.5;
+        const rect = bookWrapper.getBoundingClientRect();
+        const cx = (tx - rect.left - rect.width/2) / zScale;
+        const cy = (ty - rect.top - rect.height/2) / zScale;
+        zPanX = -cx * 0.6; zPanY = -cy * 0.6;
+        clampPan(); applyZoom(true);
+      }
+      lastTapTime = 0; return;
+    }
+    lastTapTime = now; lastTapX = tx; lastTapY = ty;
+  }
+}, { passive: false });
+
+bookWrapper.addEventListener('touchmove', function(e) {
+  if (pinchActive && e.touches.length===2) {
+    e.preventDefault(); e.stopPropagation();
+    let ns = pinchStartScale*(getTouchDist(e.touches)/pinchStartDist);
+    zScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, ns));
+    clampPan(); applyZoom(false);
+  } else if (panActive && e.touches.length===1 && zScale>1.05) {
+    e.preventDefault();
+    zPanX = panStartPX + (e.touches[0].clientX-panStartX)/zScale;
+    zPanY = panStartPY + (e.touches[0].clientY-panStartY)/zScale;
+    clampPan(); applyZoom(false);
+  }
+}, { passive: false });
+
+bookWrapper.addEventListener('touchend', function(e) {
+  if (pinchActive && e.touches.length<2) { pinchActive=false; if(zScale<1.05){zScale=1;zPanX=0;zPanY=0;applyZoom(true);} }
+  if (panActive && e.touches.length===0) panActive=false;
+}, { passive: true });
+
+bookWrapper.addEventListener('wheel', function(e) {
+  if (!document.getElementById('menuModal').classList.contains('active')) return;
+  e.preventDefault();
+  zScale=Math.max(MIN_SCALE,Math.min(MAX_SCALE,zScale*(e.deltaY>0?0.9:1.1)));
+  clampPan(); applyZoom(false);
+}, { passive: false });
+
+/* ============================================================
+   PAGE FLIP
+   ============================================================ */
+const modal    = document.getElementById('menuModal');
+const flipPage = document.getElementById('flipPage');
+const tabs     = [document.getElementById('tab0'), document.getElementById('tab1')];
+const hint     = document.getElementById('swipeHint');
+let currentPage=0, isAnimating=false, dragActive=false;
+let dragStartX=0, dragCurrentX=0, pageWidth=0, didDrag=false;
+
+function getClientX(e){ return e.touches?e.touches[0].clientX:e.clientX; }
+function calcAngle(dx) {
+  const maxDrag=pageWidth||300;
+  if(currentPage===0){ return Math.max(-180,Math.min(8,(dx/maxDrag)*180)); }
+  else { return Math.max(-180,Math.min(8,-180+(dx/maxDrag)*180)); }
+}
+function applyAngle(deg,animated) {
+  animated ? flipPage.classList.add('animating') : flipPage.classList.remove('animating');
+  flipPage.style.transform=`rotateY(${deg}deg)`;
+  if(!animated){ const p=Math.abs(deg)/180; flipPage.style.boxShadow=`${6+p*10}px 0 ${6+p*44}px rgba(0,0,0,${0.4+p*0.35})`; }
+}
+function completeFLip(toPage) {
+  isAnimating=true; flipPage.style.visibility='visible';
+  applyAngle(toPage===1?-180:0,true); playPageFlip();
+  currentPage=toPage; updateTabs();
+  setTimeout(()=>{ isAnimating=false; flipPage.classList.remove('animating'); flipPage.style.boxShadow=''; if(currentPage===1) flipPage.style.visibility='hidden'; },680);
+}
+function snapBack() {
+  isAnimating=true; applyAngle(currentPage===0?0:-180,true);
+  setTimeout(()=>{ isAnimating=false; flipPage.classList.remove('animating'); flipPage.style.boxShadow=''; },680);
+}
+function updateTabs() {
+  tabs[0].classList.toggle('active',currentPage===0); tabs[1].classList.toggle('active',currentPage===1);
+  hint.textContent=currentPage===0?'📖 اسحب يساراً للتقليب · قرصين للزوم · ضغطتين لزوم سريع':'📖 اسحب يميناً للرجوع · قرصين للزوم';
+}
+function goTo(idx){ if(idx===currentPage||isAnimating) return; flipPage.style.visibility='visible'; completeFLip(idx); }
+
+function onDragStart(e) {
+  if(isAnimating||pinchActive||panActive||zScale>1.05) return;
+  e.preventDefault(); dragActive=true; didDrag=false;
+  dragStartX=getClientX(e); dragCurrentX=dragStartX;
+  pageWidth=flipPage.offsetWidth||document.getElementById('bookScene').offsetWidth;
+  flipPage.classList.add('dragging'); flipPage.style.visibility='visible';
+}
+function onDragMove(e) {
+  if(!dragActive) return; e.preventDefault();
+  dragCurrentX=getClientX(e); const dx=dragCurrentX-dragStartX;
+  if(Math.abs(dx)>3) didDrag=true; applyAngle(calcAngle(dx),false);
+}
+function onDragEnd(e) {
+  if(!dragActive) return; dragActive=false; flipPage.classList.remove('dragging');
+  const dx=dragCurrentX-dragStartX, threshold=(pageWidth||300)*0.22;
+  if(currentPage===0&&dx<-threshold) completeFLip(1);
+  else if(currentPage===1&&dx>threshold) completeFLip(0);
+  else snapBack();
+}
+
+flipPage.addEventListener('mousedown', onDragStart,{passive:false});
+flipPage.addEventListener('touchstart', onDragStart,{passive:false});
+document.getElementById('bookScene').addEventListener('mousedown',function(e){ if(currentPage===1&&!isAnimating) onDragStart(e); },{passive:false});
+document.getElementById('bookScene').addEventListener('touchstart',function(e){ if(currentPage===1&&!isAnimating&&e.touches.length===1&&zScale<=1.05) onDragStart(e); },{passive:false});
+document.addEventListener('mousemove',onDragMove,{passive:false});
+document.addEventListener('touchmove',onDragMove,{passive:false});
+document.addEventListener('mouseup',onDragEnd);
+document.addEventListener('touchend',onDragEnd);
+document.addEventListener('touchcancel',onDragEnd);
+document.getElementById('bookScene').addEventListener('click',function(e){
+  if(isAnimating||zScale>1.05) return; if(didDrag){didDrag=false;return;} goTo(currentPage===0?1:0);
+});
+tabs[0].addEventListener('click',(e)=>{e.stopPropagation();goTo(0);});
+tabs[1].addEventListener('click',(e)=>{e.stopPropagation();goTo(1);});
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+function openMenu() {
+  modal.classList.add('active'); document.body.style.overflow='hidden';
+  fullscreenBtn.classList.add('modal-open');
+  currentPage=0; isAnimating=false; dragActive=false;
+  flipPage.style.visibility='visible'; flipPage.classList.remove('animating','dragging');
+  applyAngle(0,false); flipPage.style.boxShadow=''; updateTabs();
+}
+function closeMenu() {
+  modal.classList.remove('active'); document.body.style.overflow='';
+  fullscreenBtn.classList.remove('modal-open');
+  dragActive=false; resetZoom();
+  if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+}
+modal.addEventListener('click',function(e){ if(e.target===modal) closeMenu(); });
+document.addEventListener('fullscreenchange',()=>{
+  fullscreenBtn.textContent = document.fullscreenElement?'✕⛶':'⛶';
+});
+</script>
+</body>
+</html>
